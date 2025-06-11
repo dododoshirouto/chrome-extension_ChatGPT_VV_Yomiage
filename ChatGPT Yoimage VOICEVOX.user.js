@@ -48,9 +48,10 @@ window.GM_xmlhttpRequest = function (details) {
             }
 
             // レスポンスタイプに応じた処理
-            const resPromise = (responseType === 'json')
-                ? response.json().then(body => ({ response: body }))
-                : response.text().then(body => ({ responseText: body }));
+            let resPromise = null;
+            if (responseType === 'json') resPromise = response.json().then(body => ({ response: body }))
+            else if (responseType === 'blob') resPromise = response.blob().then(body => ({ response: body }))
+            else resPromise = response.text().then(body => ({ responseText: body }));
 
             return resPromise.then(resObj => {
                 // readyState 4: DONE
@@ -95,6 +96,7 @@ function createStyleElement() {
 }
 
 
+var userinputs = false;
 
 var enToKanaDic = [];
 
@@ -501,7 +503,11 @@ function playAudioQueue() {
         checkIfAllDone(4); // +
     };
     console.info("🔊 start play audio. : ", audios.text);
-    audio.play();
+    try {
+        if (userinputs) audio.play();
+    } catch (e) {
+        console.error(e);
+    }
     processSpeakQueue();  // 次があれば生成
     playAudioQueue(); // 次があれば再生
 }
@@ -635,55 +641,5 @@ const myPolicy = trustedTypes
 
 window.addEventListener('load', init);
 
-
-
-// test
-
-async function speakText(text) {
-    if (!SETTINGS.enabled || !text.trim()) return;
-
-    const speaker = SETTINGS.speakerId;
-    const speed = SETTINGS.speed;
-
-    try {
-        // ① audio_query取得
-        const queryRes = await new Promise((resolve, reject) => {
-            GM_xmlhttpRequest({
-                method: 'POST',
-                url: `http://127.0.0.1:50021/audio_query?text=${encodeURIComponent(text)}&speaker=${speaker}`,
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                responseType: 'json',
-                onload: res => resolve(res.response),
-                onerror: reject
-            });
-        });
-
-        // スピード設定
-        queryRes.speedScale = speed;
-
-        // ② synthesis（音声生成）
-        const synthRes = await new Promise((resolve, reject) => {
-            GM_xmlhttpRequest({
-                method: 'POST',
-                url: `http://127.0.0.1:50021/synthesis?speaker=${speaker}`,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: JSON.stringify(queryRes),
-                responseType: 'blob',
-                onload: res => resolve(res.response),
-                onerror: reject
-            });
-        });
-
-        // ③ 再生
-        const audioURL = URL.createObjectURL(synthRes);
-        const audio = new Audio(audioURL);
-        audio.play();
-
-    } catch (err) {
-        console.error('VOICEVOXエラー（CSPバイパス）:', err);
-    }
-}
+window.addEventListener('mousedown', _ => { userinputs = true; });
+window.addEventListener('keydown', _ => { userinputs = false; });
