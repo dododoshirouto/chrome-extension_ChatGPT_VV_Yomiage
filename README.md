@@ -1,0 +1,1 @@
+# ChatGPT VOICEVOX読み上げ

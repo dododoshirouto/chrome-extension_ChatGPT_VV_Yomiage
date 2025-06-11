@@ -1,0 +1,29 @@
+{
+    "manifest_version": 3,
+    "name": "ChatGPT VOICEVOX Yoimage",
+    "version": "0.1",
+    "permissions": [
+        "storage",
+        "scripting",
+        "activeTab"
+    ],
+    "host_permissions": [
+        "https://chatgpt.com/*",
+        "http://127.0.0.1/*",
+        "https://raw.githubusercontent.com/*"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "https://chatgpt.com/*"
+            ],
+            "js": [
+                "ChatGPT Yoimage VOICEVOX.user.js"
+            ],
+            "run_at": "document_end"
+        }
+    ],
+    "icons": {
+        "128": "icon.png"
+    }
+}
