@@ -642,4 +642,4 @@ const myPolicy = trustedTypes
 window.addEventListener('load', init);
 
 window.addEventListener('mousedown', _ => { userinputs = true; });
-window.addEventListener('keydown', _ => { userinputs = false; });
+window.addEventListener('keydown', _ => { userinputs = true; });
