@@ -143,9 +143,10 @@ var VV_CONNECTED = false;
 
 function waitForHeaderAndInsertSettingsButton() {
     const interval = setInterval(() => {
+        if (document.querySelector('#toggle-settings-button-' + SCRIPT_ID)) return;
         const target = document.querySelector('[role="presentation"] > .h-header-height'); // ChatGPTの上のヘッダーバー
         if (target && target.children[2]) {
-            clearInterval(interval);
+            // clearInterval(interval);
             const insertTarget = target.children[2];
             const settingsUI = createSettingsUI();
             insertTarget.prepend(settingsUI);
